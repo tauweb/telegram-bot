@@ -1,0 +1,4 @@
+Исключить проверку токена по маршруту бота
+В файле \app\Http\Middleware\VerifyCsrfToken.php в свойство  $except добавить запись:
+
+'/<your_token>/webhook'

@@ -1,0 +1,28 @@
+{
+    "name": "tauweb/telegram-bot",
+    "description": "Php Telegram Bot SDK",
+    "authors": [
+        {
+            "name": "WhiskeyMan",
+            "email": "whiskeyman.tau@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "TelegramBot\\": "src/"
+        }
+    },
+    "laravel": {
+        "providers": [
+            "TelegramBot\\Laravel\\TelegramBotServiceProvider"
+        ],
+        "aliases": {
+            "Telegram": "TelegramBot\\Laravel\\Facades\\TelegramBot"
+        }
+    },
+    "minimum-stability": "dev"
+}
