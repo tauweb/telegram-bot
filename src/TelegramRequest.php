@@ -133,26 +133,58 @@ class TelegramRequest
 
     public function sendRequest(/*string $method = null, array $params =[]*/): TelegramResponse
     {
-echo self::BASE_BOT_URL . $this->accessToken .'/'.$this->method;
+        foreach ($this->params as $key => &$val) {
+            // encoding to JSON array parameters, for example reply_markup
+            if (!is_numeric($val) && !is_string($val)) {
+                $val = json_encode($val);
+            }
+        }
+        $url = self::BASE_BOT_URL . $this->accessToken .'/'.$this->method.'?'.http_build_query($this->params);
 
-        $url = self::BASE_BOT_URL ;
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
+        $handle = curl_init($url);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+//        curl_setopt($handle, CURLOPT_HEADER, false);
+//        curl_setopt($handle, CURLOPT_POST, true);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 10);
 
-        $data = array(
-            'chat_id' => -1001099783352,
-            'text' => 'bar'
-        );
+        $response = curl_exec($handle);
+        $err = curl_error($handle);
+        var_dump($err); die();
+        if ($response === false) {
+            $errno = curl_errno($handle);
+            $error = curl_error($handle);
+            error_log("Curl returned error $errno: $error\n");
+            curl_close($handle);
+            return false;
+        }
+
+        $http_code = intval(curl_getinfo($handle, CURLINFO_HTTP_CODE));
+        curl_close($handle);
+
+        if ($http_code >= 500) {
+            // do not wat to DDOS server if something goes wrong
+            sleep(10);
+            return false;
+        } else if ($http_code != 200) {
+            $response = json_decode($response, true);
+            error_log("Request has failed with error {$response['error_code']}: {$response['description']}\n");
+            if ($http_code == 401) {
+                throw new Exception('Invalid access token provided');
+            }
+            return false;
+        } else {
+            $response = json_decode($response, true);
+            if (isset($response['description'])) {
+                error_log("Request was successfull: {$response['description']}\n");
+            }
+            $response = $response['result'];
+        }
+
+        return $response;
 
 
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-        $contents = curl_exec($ch);
-        curl_close($ch);
-
-var_dump($contents);
-
+//        --------------------------------------------------------------------------------------------------------------
 
         if (is_null($this->getMethod())){
             throw new \Exception('Need to set telegram method.'); // TODO: написать обработчик исключений
@@ -163,7 +195,7 @@ var_dump($contents);
 
         $url = self::BASE_BOT_URL . $this->accessToken .'/'.$this->method;
         $ch = curl_init();
-        $optArray = array(
+        $optArray = [
             CURLOPT_SAFE_UPLOAD => true,
             // CURLOPT_HTTPHEADER => array(
             // "Content-Type:multipart/form-data",
@@ -171,11 +203,12 @@ var_dump($contents);
             CURLOPT_URL => $url,
             CURLOPT_POST => true,
             CURLOPT_RETURNTRANSFER => true,
-            // CURLOPT_TIMEOUT => 600,
-            CURLOPT_POSTFIELDS => array(
+             CURLOPT_TIMEOUT => 10,
+             CURLOPT_TIMEOUT => 60,
+            CURLOPT_POSTFIELDS => [
                 // Параметры запроса
-            )
-        );
+            ]
+        ];
 
         // Задаем параметры запроса
         if (isset($this->params) and is_array($this->params)) {
@@ -189,7 +222,7 @@ var_dump($contents);
 
         curl_close($ch);
 
-var_dump($this);
+var_dump($result);
         $this->httpClentResponse = $result;
         return (new TelegramResponse($this));
     }
