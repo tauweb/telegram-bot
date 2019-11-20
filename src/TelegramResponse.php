@@ -17,7 +17,7 @@ class TelegramResponse {
 
         $this->request = $request;
 //        var_dump($request);
-//        $this->response = $request->getHttpClientResponse();
+        $this->response = $request->getHttpClientResponse();
 //        $this->body = $this->getBody();
 //        $this->decodeBody();
     }
