@@ -11,7 +11,6 @@ namespace TelegramBot;
 // use GuzzleHttp\Exception\RequestException;
 
 use TelegramBot\TelegramResponse;
-use TelegramBot\TelegramResponse;
 
 /**
  * Class TelegramRequest.
@@ -160,9 +159,10 @@ class TelegramRequest
         if ($response === false) {
             $errno = curl_errno($handle);
             $error = curl_error($handle);
-            error_log("Curl returned error $errno: $error\n");
+//            error_log("Curl returned error $errno: $error\n");
             curl_close($handle);
-            return false;
+            throw new \Exception("No respone from telegram server: $errno: $error\n."); // TODO: написать обработчик исключений
+//            return false;
         }
 
         $http_code = intval(curl_getinfo($handle, CURLINFO_HTTP_CODE));
