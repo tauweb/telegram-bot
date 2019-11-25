@@ -137,18 +137,86 @@ class TelegramRequest
 
     public function sendRequest(/*string $method = null, array $params =[]*/): TelegramResponse
     {
-        foreach ($this->params as $key => &$val) {
-            // encoding to JSON array parameters, for example reply_markup
-            if (!is_numeric($val) && !is_string($val)) {
-                $val = json_encode($val);
+        $attachments = ['certificate', 'photo', 'sticker', 'audio', 'document', 'video'];
+
+        foreach($attachments as $attachment){
+            if(isset($this->params[$attachment])){
+                $this->params[$attachment] = $this->curlFile($this->params[$attachment]);
+                break;
             }
         }
+
+        $arCurlParam = [
+            CURLOPT_SAFE_UPLOAD => true,
+            CURLOPT_URL => self::BASE_BOT_URL . $this->accessToken .'/'.$this->method,
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS => $this->params
+        ];
+
+        $handle = curl_init();
+        curl_setopt_array($handle, $arCurlParam);
+        $response = curl_exec($handle);
+        $err = curl_error($handle);
+
+        if ($response === false) {
+            $errno = curl_errno($handle);
+            $error = curl_error($handle);
+//            error_log("Curl returned error $errno: $error\n");
+            curl_close($handle);
+            throw new \Exception("No respone from telegram server: $errno: $error\n."); // TODO: написать обработчик исключений
+//            return false;
+        }
+
+        $http_code = intval(curl_getinfo($handle, CURLINFO_HTTP_CODE));
+        curl_close($handle);
+
+        $this->httpClentResponse = $response;
+        return (new TelegramResponse($this));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//        foreach ($this->params as $key => &$val) {
+//            // encoding to JSON array parameters, for example reply_markup
+//            if (!is_numeric($val) && !is_string($val)) {
+//                $val = json_encode($val);
+//            }
+//        }
+
+        $attachments = ['certificate', 'photo', 'sticker', 'audio', 'document', 'video'];
+
+        foreach($attachments as $attachment){
+            if(isset($params[$attachment])){
+
+                $params[$attachment] = $this->curlFile($params[$attachment]);
+                var_dump($params[$attachment]);
+                break;
+            }
+        }
+
+
         $url = self::BASE_BOT_URL . $this->accessToken .'/'.$this->method.'?'.http_build_query($this->params);
 
         $handle = curl_init($url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
 //        curl_setopt($handle, CURLOPT_HEADER, false);
-//        curl_setopt($handle, CURLOPT_POST, true);
+            curl_setopt($handle, CURLOPT_POST, true);
+//            curl_setopt($handle, CURLOPT_SAFE_UPLOAD, true);
+//            curl_setopt($handle, CURLOPT_HTTPHEADER,array('User-Agent: Opera/9.80 (Windows NT 6.2; Win64; x64) Presto/2.12.388 Version/12.15','Referer: http://someaddress.tld','Content-Type: multipart/form-data'));
         curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($handle, CURLOPT_TIMEOUT, 10);
 
@@ -184,7 +252,7 @@ class TelegramRequest
 //                throw new Exception('Invalid access token provided');
 //            }
 //            return false;
-//        } else {
+//        } else {$test
 //            $response = json_decode($response, true);
 //            if (isset($response['description'])) {
 //                error_log("Request was successfull: {$response['description']}\n");
@@ -235,5 +303,27 @@ class TelegramRequest
 //
 //        $this->httpClentResponse = $result;
 //        return (new TelegramResponse($this));
+    }
+
+    private function curlFile($path){
+//        if (is_array($path))
+//            return $path['file_id'];
+
+        $realPath = realpath($path);
+
+        if (class_exists('CURLFile'))
+            $curlFile = new \CURLFile($realPath);
+
+        // если не файл (например передан file_id или нет такого файла)
+        if ($curlFile->name !== '')
+            return $curlFile;
+
+        return $path;
+
+
+//        if (class_exists('CURLFile'))
+//            return new \CURLFile($realPath);
+//
+//        return '@' . $realPath;
     }
 }

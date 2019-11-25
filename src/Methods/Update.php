@@ -6,6 +6,17 @@ use TelegramBot\TelegramResponse;
 
 trait Update
 {
+    // TODO: ПЕРЕНЕСТИ ОТСЮДА!
+    public function getMe()
+    {
+        return $this->sendRequest(__FUNCTION__);
+    }
+
+    public function getUpdates()
+    {
+        return $this->sendRequest(__FUNCTION__);
+    }
+
     /**
      * Set a Webhook to receive incoming updates via an outgoing webhook.
      *
@@ -37,27 +48,24 @@ trait Update
     {
         $params = [
             'url'               => $params['url'],
-            'certificate'       => isset($params['certificate']) ? $this->uploadFile('certificate', $params['certificate']) : null,
+//            'certificate'       => isset($params['certificate']) ? $this->uploadFile('certificate', $params['certificate']) : null,
+//            'certificate'       => isset($params['certificate']) ? new \CURLFile(realpath($params['certificate'])) : null,
+            'certificate'       => $params['certificate'] ?? null,
             'max_connections'   => $params['max_connections'] ?? 40,
-            'allowed_updates'   => $params['allowed_updates'] ?? null
+//            'allowed_updates'   => $params['allowed_updates'] ?? null
+            'allowed_updates'   => !is_array($params['allowed_updates']) ? $params['allowed_updates'] : json_encode($params['allowed_updates']) ?? null
         ];
 
-        $this->request = new TelegramRequest(
-            $this->token, 
-            __FUNCTION__,
-            $params
-        );
-            
-        return $this->request->sendRequest();
+        return $this->sendRequest(__FUNCTION__, $params);
+    }
+
+    public function deleteWebhook()
+    {
+        return $this->sendRequest(__FUNCTION__);
     }
 
     public function getWebhookInfo(): TelegramResponse
     {
-        $this->request = new TelegramRequest(
-            $this->token,
-            __FUNCTION__
-        );
-            
-        return $this->request->sendRequest();  
+        return $this->sendRequest(__FUNCTION__);
     }
 }

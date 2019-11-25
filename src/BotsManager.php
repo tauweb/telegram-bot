@@ -8,23 +8,24 @@ class BotsManager
     /** @var array The config instance. */
     protected $config;
 
-
     /** @var TelegramBotApi[] The active bot instances. */
     protected $bots = [];
 
-    /** @var TelegramBotApi[] The active bot instances. */
-    // protected $bots = [];
+    /** @var string Name of the last bot instances. */
+    protected $currentBot;
 
     /**
      * TelegramManager constructor.
      *
      * @param array $config
      */
-    public function __construct(array $config)
+    public function __construct(array $config = [])
     {
-
+        if (empty($config)){
+            $config = app('config')->get('telegrambot');
+        }
         $this->config = $config;
-        // return $this;
+         return $this;
     }
 
     /**
@@ -37,6 +38,8 @@ class BotsManager
     public function getBot($name = null): TelegramBotApi
     {
         $name = $name ?? $this->config['default_bot'];
+
+        $this->currentBot = $name;
 
         if (! isset($this->bots[$name])) {
             $this->bots[$name] = $this->makeBot($name);
@@ -59,9 +62,19 @@ class BotsManager
         $token = $config['token'];
 
         $telegram = new TelegramBotApi(
-            $token
+            $token, $this
         );
 
+
+
         return $telegram;
+    }
+
+    public function getCurrentBotName(): string
+    {
+        if(!$this->currentBot){
+            throw new \Exception('You must first create a bot instance BotsManager->getBot()'); // TODO: Написать обработчик исключений
+        }
+        return $this->currentBot;
     }
 }

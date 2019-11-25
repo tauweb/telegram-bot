@@ -35,7 +35,7 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/migrations');
         $cfg_file = __DIR__.'/config/telegrambot.php';
         $this->mergeConfigFrom($cfg_file, 'telegrambot');
-        $this->publishes([$cfg_file, config_path('telegrambot.php')], 'config');
+        $this->publishes([$cfg_file => config_path('telegrambot.php')], 'config');
     }
 
     public function registerBotManager()

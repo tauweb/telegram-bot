@@ -14,13 +14,11 @@ class TelegramResponse {
 
     public function __construct(TelegramRequest $request)
     {
-
         $this->request = $request;
-//        var_dump($request);
         $this->response = $request->getHttpClientResponse();
 //        $this->body = $this->getBody();
-//        $this->decodeBody();
-        var_dump($this);die();
+        $this->decodeBody();
+//        var_dump($this);die();
     }
 
     /**
@@ -28,11 +26,11 @@ class TelegramResponse {
      */
     public function decodeBody()
     {
-        $this->decodedBody = json_decode($this->body, true);
+        $this->decodedBody = json_decode($this->response, true);
 
         if ($this->decodedBody === null) {
             $this->decodedBody = [];
-            parse_str($this->body, $this->decodedBody);
+            parse_str($this->response, $this->decodedBody);
         }
 
         if (! is_array($this->decodedBody)) {
@@ -40,15 +38,15 @@ class TelegramResponse {
         }
     }
 
-
     /**
      * Return the raw body response.
      *
      * @return string
      */
-    public function getBody(): string
+    public function getBody(bool $json = false)
     {
-        return $this->body;
+        return $json ? json_encode($this->decodedBody) : $this->decodedBody;
+//        return $this->decodedBody;
     }
 
     /**
@@ -59,6 +57,15 @@ class TelegramResponse {
     public function getResult()
     {
         return $this->decodedBody['result'];
+
+//        if (isset($this->decodedBody['result'])){
+//            return $this->decodedBody['result'];
+//        }elseif (!$this->isError()){
+//            throw new \Exception('No any result or error from server'); // TODO: Exception
+//        }elseif (isError()){
+//            return $this->getError();
+//        }
+
     }
 
     /**
@@ -69,5 +76,16 @@ class TelegramResponse {
     public function isError(): bool
     {
         return isset($this->decodedBody['ok']) && ($this->decodedBody['ok'] === false);
+    }
+
+
+    /**
+     * Get the telegram response error.
+     *
+     * @return mixed false or telegram request error info array
+     */
+    public function getError()
+    {
+        return $this->isError() ? $this->decodedBody : false;
     }
 }

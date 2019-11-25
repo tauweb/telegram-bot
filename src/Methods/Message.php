@@ -22,16 +22,18 @@ trait Message {
             'reply_markup' => $params['reply_markup'] ?? ''
         ];
 
-//        $this->request = new TelegramRequest(
-//            $this->token,
-//            __FUNCTION__,
-//            $params
-//         );
-//
-//        //  return new TelegramResponse($this->request->sendRequest());
-//         return $this->request->sendRequest();
+        return $this->sendRequest(__FUNCTION__, $params);
+    }
+
+    public function forwardMessage(array $params) : TelegramRequest
+    {
+        $params = array(
+            'chat_id' => $params['chat_id'],
+            'from_chat_id' => $params['from_chat_id'],
+            'disable_notification' => isset($params['disable_notification']) ? $params['disable_notification'] : true,
+            'message_id' => $params['message_id']
+        );
 
         return $this->sendRequest(__FUNCTION__, $params);
-//        return $this->request->sendRequest(__FUNCTION__, $params);
     }
 }
