@@ -6,11 +6,11 @@ use TelegramBot\TelegramRequest;
 
 class TelegramBotApi
 {
-   use Methods\Message;
-   use Methods\Update;
-   use Methods\TelegramAuth;
+    use Methods\Message;
+    use Methods\Update;
+    use Methods\TelegramAuth;
 
-   /** @var string Version number of the Telegram Bot PHP. */
+    /** @var string Version number of the Telegram Bot PHP. */
     const VERSION = '1.0.0';
 
     /**
@@ -24,9 +24,9 @@ class TelegramBotApi
 
     public function __construct($token, BotsManager $botsManager = null)
     {
-      $this->token = $token;
-      $this->botsManager = $botsManager;
-   }
+        $this->token = $token;
+        $this->botsManager = $botsManager;
+    }
 
     /**
      * Get instance of the Bots Manager (DI).
@@ -43,19 +43,18 @@ class TelegramBotApi
         return $this->botsManager;
     }
 
-   public function sendRequest(string $method, array $params = []): TelegramResponse
-   {
-       $this->response = (new TelegramRequest())
-           ->setAccessToken($this->getAccessToken())
-           ->setMethod($method)
-           ->setParams($params)
-           ->sendRequest();
+    public function sendRequest(string $method, array $params = []): TelegramResponse
+    {
+       	$this->response = (new TelegramRequest())
+        	->setAccessToken($this->getAccessToken())
+			->setMethod($method)
+			->setParams($params)
+			->sendRequest();
 
-       return $this->response;
-   }
+       	return $this->response;
+    }
 
-   public function getAccessToken() {return $this->token;}
-
+    public function getAccessToken() {return $this->token;}
 
     /**
      * The magic method to call undescribed methods in the API (For dev)
@@ -65,7 +64,7 @@ class TelegramBotApi
      * @return TelegramResponse
      */
     public function __call(string $name, array $arguments = [])
-   {
-       return $this->sendRequest($name, $arguments[0]);
-   }
+    {
+		return $this->sendRequest($name, $arguments[0]);
+    }
 }
