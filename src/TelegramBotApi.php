@@ -1,14 +1,14 @@
 <?php
 namespace TelegramBot;
 
-
-use mysql_xdevapi\Exception;
+use PHPUnit\Framework\MockObject\Method;
 use TelegramBot\TelegramRequest;
 
 class TelegramBotApi
 {
    use Methods\Message;
    use Methods\Update;
+   use Methods\TelegramAuth;
 
    /** @var string Version number of the Telegram Bot PHP. */
     const VERSION = '1.0.0';
@@ -26,28 +26,25 @@ class TelegramBotApi
     {
       $this->token = $token;
       $this->botsManager = $botsManager;
-      return $this;
    }
 
     /**
      * Get instance of the Bots Manager (DI).
      *
-     * @param $config
+     * @param array $config The bots config
      *
      * @return BotsManager
      */
     public function manager(): BotsManager
     {
-        if (!is_object($this->botsManager) and $this->botsManager instanceof BotsManager ){
+        if ( !is_object($this->botsManager) and !($this->botsManager instanceof BotsManager) )
             throw new \Exception('BotsManager must be instanceof TelegramBot\BotsManager'); // TODO: Написать обработчик исключений
-        }
+
         return $this->botsManager;
     }
-    ////////////////////////////////////////////////////////////
 
-   public function sendRequest($method, $params=[])
+   public function sendRequest(string $method, array $params = []): TelegramResponse
    {
-       // TODO: Здесь лежит TelegramResponse. Может переименовать свойство?
        $this->response = (new TelegramRequest())
            ->setAccessToken($this->getAccessToken())
            ->setMethod($method)
@@ -55,12 +52,20 @@ class TelegramBotApi
            ->sendRequest();
 
        return $this->response;
-
    }
 
+   public function getAccessToken() {return $this->token;}
 
-   public function getAccessToken()
+
+    /**
+     * The magic method to call undescribed methods in the API (For dev)
+     *
+     * @param string $name name of the telegram method to request
+     * @param array $arguments
+     * @return TelegramResponse
+     */
+    public function __call(string $name, array $arguments = [])
    {
-      return $this->token;
+       return $this->sendRequest($name, $arguments[0]);
    }
 }

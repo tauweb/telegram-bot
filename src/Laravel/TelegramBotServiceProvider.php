@@ -22,6 +22,8 @@ class TelegramBotServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/views', 'telegramBot');
         $this->registerBotManager();
+        // Register Telegram Login Widget and Telegram Auth
+//        $this->app->singleton('telegramAuth');
     }
 
     /**
@@ -33,7 +35,7 @@ class TelegramBotServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/routes/routes.php');
         $this->loadMigrationsFrom(__DIR__.'/migrations');
-        $cfg_file = __DIR__.'/config/telegrambot.php';
+        $cfg_file = realpath(__DIR__.'/../config/telegrambot.php');
         $this->mergeConfigFrom($cfg_file, 'telegrambot');
         $this->publishes([$cfg_file => config_path('telegrambot.php')], 'config');
     }
@@ -51,9 +53,9 @@ class TelegramBotServiceProvider extends ServiceProvider
      *
      * @return array
      */
-    // public function provides(): array
-    // {
-    //     return ['telegramBot', 'telegramBotApi', BotsManager::class, Api::class];
-    // }
+//     public function provides(): array
+//     {
+//         return ['telegramBot', 'telegramBotApi', BotsManager::class, Api::class];
+//     }
 
 }

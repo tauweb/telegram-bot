@@ -1,8 +1,11 @@
 <?php
 namespace TelegramBot\Methods;
 
+use TelegramBot\Objects\UpdateObject;
 use TelegramBot\TelegramRequest;
 use TelegramBot\TelegramResponse;
+
+use Illuminate\Support\Facades\Log;
 
 trait Update
 {
@@ -53,7 +56,8 @@ trait Update
             'certificate'       => $params['certificate'] ?? null,
             'max_connections'   => $params['max_connections'] ?? 40,
 //            'allowed_updates'   => $params['allowed_updates'] ?? null
-            'allowed_updates'   => !is_array($params['allowed_updates']) ? $params['allowed_updates'] : json_encode($params['allowed_updates']) ?? null
+             'allowed_updates'   => isset($params['allowed_updates']) ? json_encode($params['allowed_updates']) : json_encode([])
+//            'allowed_updates' => json_encode(['message'])
         ];
 
         return $this->sendRequest(__FUNCTION__, $params);
@@ -67,5 +71,24 @@ trait Update
     public function getWebhookInfo(): TelegramResponse
     {
         return $this->sendRequest(__FUNCTION__);
+    }
+
+    // TODO: Составить доку, здесь получатся апдейты из POST запросов от телеги
+    // Получать как-то так:
+    //Route::post('/<token>/webhook', function () {
+    //    $updates = Telegram::getWebhookUpdates();
+    //
+    //    return 'ok';
+    //});
+    /**
+     * Returns a webhook update sent by Telegram.
+     * Works only if you set a webhook.
+     */
+    public function getWebhookUpdates(): UpdateObject
+    {
+        $body = json_decode(file_get_contents('php://input'), true);
+        $update = new UpdateObject($body);
+//        Log::debug('TelegramWebhool', $body,'tg');
+        return $update;
     }
 }

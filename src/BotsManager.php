@@ -21,11 +21,16 @@ class BotsManager
      */
     public function __construct(array $config = [])
     {
-        if (empty($config)){
+        // Getting the default config for Laravel.
+        if (empty($config) and function_exists('app')) {
             $config = app('config')->get('telegrambot');
+        } else {
+            // Getting the default config for standalone usage.
+            $config = include(__DIR__.'/config/telegrambot.php');
         }
+
         $this->config = $config;
-         return $this;
+//        return $this;
     }
 
     /**
@@ -38,12 +43,10 @@ class BotsManager
     public function getBot($name = null): TelegramBotApi
     {
         $name = $name ?? $this->config['default_bot'];
-
         $this->currentBot = $name;
 
-        if (! isset($this->bots[$name])) {
+        if (! isset($this->bots[$name]))
             $this->bots[$name] = $this->makeBot($name);
-        }
 
         return $this->bots[$name];
     }
@@ -58,23 +61,17 @@ class BotsManager
     protected function makeBot($name): TelegramBotApi
     {
         $config = $this->config['bots'][$name];
-
         $token = $config['token'];
+        $telegramBot = new TelegramBotApi($token, $this);
 
-        $telegram = new TelegramBotApi(
-            $token, $this
-        );
-
-
-
-        return $telegram;
+        return $telegramBot;
     }
 
     public function getCurrentBotName(): string
     {
-        if(!$this->currentBot){
+        if(!$this->currentBot)
             throw new \Exception('You must first create a bot instance BotsManager->getBot()'); // TODO: Написать обработчик исключений
-        }
+
         return $this->currentBot;
     }
 }
