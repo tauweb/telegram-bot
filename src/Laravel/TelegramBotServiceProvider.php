@@ -4,6 +4,8 @@ namespace TelegramBot\Laravel;
 
 use Illuminate\Support\ServiceProvider;
 use TelegramBot\BotsManager;
+use TelegramBot\TelegramAuth;
+
 // use Illuminate\Contracts\Container\Container as Application;
 // use Illuminate\Contracts\Support\DeferrableProvider; // Для использования отложенного вызова SP
 
@@ -22,6 +24,7 @@ class TelegramBotServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/views', 'telegramBot');
         $this->registerBotManager();
+        $this->registerTelegramAuth();
         // Register Telegram Login Widget and Telegram Auth
 //        $this->app->singleton('telegramAuth');
     }
@@ -45,6 +48,13 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->app->singleton('telegramBot', function () {
             $config = app('config')->get('telegrambot');
             return (new BotsManager($config))->getBot();
+        });
+    }
+
+    public function registerTelegramAuth()
+    {
+        $this->app->singleton('telegramAuth', function () {
+            return (new TelegramAuth());
         });
     }
 

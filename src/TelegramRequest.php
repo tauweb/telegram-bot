@@ -224,7 +224,7 @@ class TelegramRequest
         return (new TelegramResponse($this));
     }
 
-    private function curlFile($path){
+    private function curlFile($path) {
 //        if (is_array($path))
 //            return $path['file_id'];
 

@@ -1,13 +1,32 @@
 <?php
 
-namespace TelegramBot\Methods;
+namespace TelegramBot;
 
 use TelegramBot\Laravel\Facades\TelegramBot;
 
-trait TelegramAuth {
+class TelegramAuth {
 
+    private $botUsername;
     private $telegramUserData;
-    private $cookieSessionName = 'tg_user';
+//    private $cookieSessionName = 'tg_user';
+    private const COOKIE_SESSION_NAME =  'tg_user';
+
+    public function do(string $botName = '')
+    {
+        if (!$botName)
+            $botName = TelegramBot::manager()->getCurrentBotName();
+
+        if (!$botName)
+            return false;
+
+        $this->botUsername = $botName;
+
+        // Пытается получить данные юзера из куки.
+        $tgAuthData = $this->getTelegramUserData();
+        $this->checkTelegramAuthorization($tgAuthData);
+
+    }
+
 
     public function validate(array $telegramUserData = []): bool
     {
@@ -17,7 +36,8 @@ trait TelegramAuth {
 
 
     public function getTelegramLoginButton(){
-        $botUsername = $this->getMe()->getResult()['username'];
+//        $botUsername = TelegramBot::getMe()->getResult()['username'];
+        $botUsername = TelegramBot::manager()->getCurrentBotName();
         // TODO: Вынести во вьюху
         $htmlLoginButton = "<script
                             type=\"application/javascript\"
@@ -80,10 +100,12 @@ trait TelegramAuth {
         $hash = hash_hmac('sha256', $dataCheckString, $secret_key);
 
         if (strcmp($hash, $checkHash) !== 0)
-            throw new \Exception('Data is NOT from Telegram');
+            return false;
+//            throw new \Exception('Data is NOT from Telegram');
 
         if ((time() - $tgAuthData['auth_date']) > 86400)
-            throw new \Exception('Data is outdated');
+            return false;
+//            throw new \Exception('Data is outdated');
 
         $this->saveTelegramUserData($tgAuthData);
 
@@ -93,20 +115,20 @@ trait TelegramAuth {
     public function saveTelegramUserData($tgAuthData)
     {
         $tgAuthData_json = json_encode($tgAuthData);
-        setcookie($this->cookieSessionName, $tgAuthData_json);
+        setcookie($this->COOKIE_SESSION_NAME, $tgAuthData_json);
     }
 
     public function getTelegramUserData()
     {
-        if (isset($_COOKIE[$this->cookieSessionName])) {
-            $auth_data_json = urldecode($_COOKIE[$this->cookieSessionName]);
+        if (isset($_COOKIE[$this->COOKIE_SESSION_NAME])) {
+            $auth_data_json = urldecode($_COOKIE[$this->COOKIE_SESSION_NAME]);
             $auth_data = json_decode($auth_data_json, true);
             return $auth_data;
         }
 //        return false;
 
         if ($_GET['logout']) {
-            setcookie($this->cookieSessionName, '');
+            setcookie($this->COOKIE_SESSION_NAME, '');
             header('Location: '.$_SERVER['SERVER_NAME']);
         }
     }

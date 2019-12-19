@@ -5,13 +5,16 @@ use Illuminate\Support\Facades\Log;
 
 abstract class BaseObject {
 
-    public function __construct($data)
+	private $data;
+
+    public function __construct(array $data)
     {
-        $this->getResult($data);
+        $this->data = $data;
     }
 
     private function getResult($data)
     {
         Log::debug(__FUNCTION__,$data);
     }
+    
 }

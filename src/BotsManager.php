@@ -30,7 +30,6 @@ class BotsManager
         }
 
         $this->config = $config;
-//        return $this;
     }
 
     /**
@@ -40,7 +39,7 @@ class BotsManager
      *
      * @return TelegramBotApi
      */
-    public function getBot($name = null): TelegramBotApi
+    public function getBot(string $name = null): TelegramBotApi
     {
         $name = $name ?? $this->config['default_bot'];
         $this->currentBot = $name;
@@ -58,7 +57,7 @@ class BotsManager
      *
      * @return TelegramBotApi
      */
-    protected function makeBot($name): TelegramBotApi
+    protected function makeBot(string $name): TelegramBotApi
     {
         $config = $this->config['bots'][$name];
         $token = $config['token'];
