@@ -11,7 +11,6 @@ use TelegramBot\TelegramAuth;
 
 class TelegramBotServiceProvider extends ServiceProvider
 {
-
     /** @var bool Indicates if loading of the provider is deferred. */
      protected $defer = true;
 
@@ -25,8 +24,6 @@ class TelegramBotServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/views', 'telegramBot');
         $this->registerBotManager();
         $this->registerTelegramAuth();
-        // Register Telegram Login Widget and Telegram Auth
-//        $this->app->singleton('telegramAuth');
     }
 
     /**
@@ -67,5 +64,4 @@ class TelegramBotServiceProvider extends ServiceProvider
 //     {
 //         return ['telegramBot', 'telegramBotApi', BotsManager::class, Api::class];
 //     }
-
 }

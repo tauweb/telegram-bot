@@ -12,7 +12,7 @@ class BotsManager
     protected $bots = [];
 
     /** @var string Name of the last bot instances. */
-    protected $currentBot;
+    protected $currentBotName;
 
     /**
      * TelegramManager constructor.
@@ -21,13 +21,11 @@ class BotsManager
      */
     public function __construct(array $config = [])
     {
-        // Getting the default config for Laravel.
-        if (empty($config) and function_exists('app')) {
-            $config = app('config')->get('telegrambot');
-        } else {
-            // Getting the default config for standalone usage.
+        // Getting the default config for Laravel or standalone.
+        if (empty($config) and function_exists('config'))
+            $config = config('telegrambot');
+        elseif (empty($config))
             $config = include(__DIR__.'/config/telegrambot.php');
-        }
 
         $this->config = $config;
     }
@@ -41,13 +39,12 @@ class BotsManager
      */
     public function getBot(string $name = null): TelegramBotApi
     {
-        $name = $name ?? $this->config['default_bot'];
-        $this->currentBot = $name;
+        $this->currentBotName = $name ?? $this->config['default_bot'];
 
-        if (! isset($this->bots[$name]))
-            $this->bots[$name] = $this->makeBot($name);
+        if (!isset($this->bots[$this->currentBotName]))
+            $this->bots[$this->currentBotName] = $this->makeBot($this->currentBotName);
 
-        return $this->bots[$name];
+        return $this->bots[$this->currentBotName];
     }
 
     /**
@@ -66,11 +63,14 @@ class BotsManager
         return $telegramBot;
     }
 
-    public function getCurrentBotName(): string
+    public function getConfig(string $key = '')
     {
-        if(!$this->currentBot)
+        if(!$this->currentBotName)
             throw new \Exception('You must first create a bot instance BotsManager->getBot()'); // TODO: Написать обработчик исключений
 
-        return $this->currentBot;
+        if ($key == 'name')
+            return $this->currentBotName;
+
+        return $key ? $this->config['bots'][$this->currentBotName][$key] : $this->config['bots'][$this->currentBotName];
     }
 }

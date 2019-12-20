@@ -8,7 +8,6 @@ class TelegramBotApi
 {
     use Methods\Message;
     use Methods\Update;
-//    use Methods\TelegramAuth;
 
     /** @var string Version number of the Telegram Bot PHP. */
     const VERSION = '1.0.0';
@@ -63,7 +62,7 @@ class TelegramBotApi
      * @param array $arguments
      * @return TelegramResponse
      */
-    public function __call(string $name, array $arguments = [])
+    public function __call(string $name, array $arguments = []): TelegramResponse
     {
 		return $this->sendRequest($name, $arguments[0] ?? []);
     }

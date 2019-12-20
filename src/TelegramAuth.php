@@ -5,16 +5,14 @@ namespace TelegramBot;
 use TelegramBot\Laravel\Facades\TelegramBot;
 
 class TelegramAuth {
-
     private $botUsername;
     private $telegramUserData;
-//    private $cookieSessionName = 'tg_user';
     private const COOKIE_SESSION_NAME =  'tg_user';
 
     public function do(string $botName = '')
     {
         if (!$botName)
-            $botName = TelegramBot::manager()->getCurrentBotName();
+            $botName = TelegramBot::manager()->getConfig('username');
 
         if (!$botName)
             return false;
@@ -37,7 +35,7 @@ class TelegramAuth {
 
     public function getTelegramLoginButton(){
 //        $botUsername = TelegramBot::getMe()->getResult()['username'];
-        $botUsername = TelegramBot::manager()->getCurrentBotName();
+        $botUsername = TelegramBot::manager()->getConfig('username');
         // TODO: Вынести во вьюху
         $htmlLoginButton = "<script
                             type=\"application/javascript\"
