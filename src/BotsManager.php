@@ -68,8 +68,18 @@ class BotsManager
         if(!$this->currentBotName)
             throw new \Exception('You must first create a bot instance BotsManager->getBot()'); // TODO: Написать обработчик исключений
 
+//        $key = 'name.ts';
+//
+//        $keys = explode('.', $key)
+//        for ($i = 0; $i <= count($keys) ; $i++){
+//            echo
+//        }
+//        die();
+
         if ($key == 'name')
             return $this->currentBotName;
+
+
 
         return $key ? $this->config['bots'][$this->currentBotName][$key] : $this->config['bots'][$this->currentBotName];
     }
