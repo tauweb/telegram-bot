@@ -4,7 +4,7 @@ namespace TelegramBot\Methods;
 
 use TelegramBot\TelegramResponse;
 
-trait Message { // TODO: Составить описание
+trait Message {
     /**
      * Use this method to send text messages. On success, the sent Message is returned.
      * @param array $params Мessage data array

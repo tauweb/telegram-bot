@@ -1,6 +1,8 @@
 <?php
 return [
     "default_bot" => "My Bot",
+    "proxy_enable" => false,
+    "proxy" => '',
     "bots"=>[
         "My Bot"=>[
             'username'  => 'TelegramBotToken',

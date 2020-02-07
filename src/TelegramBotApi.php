@@ -29,15 +29,14 @@ class TelegramBotApi
 
     /**
      * Get instance of the Bots Manager (DI).
-     *
      * @param array $config The bots config
-     *
      * @return BotsManager
      */
     public function manager(): BotsManager
     {
-        if ( !is_object($this->botsManager) and !($this->botsManager instanceof BotsManager) )
+        if (!is_object($this->botsManager) and !($this->botsManager instanceof BotsManager)) {
             throw new \Exception('BotsManager must be instanceof TelegramBot\BotsManager'); // TODO: Написать обработчик исключений
+        }
 
         return $this->botsManager;
     }
@@ -47,17 +46,19 @@ class TelegramBotApi
        	$this->response = (new TelegramRequest())
         	->setAccessToken($this->getAccessToken())
 			->setMethod($method)
-			->setParams($params)
-			->sendRequest();
+			->setParams($params);
+        if ($this->manager()->getConfig('proxy_enable')) {
+            $this->response->setProxy($this->manager()->getConfig('proxy'));
+        }
 
-       	return $this->response;
+       	return $this->response->sendRequest();
+        ;
     }
 
     public function getAccessToken() {return $this->token;}
 
     /**
      * The magic method to call undescribed methods in the API (For dev)
-     *
      * @param string $name name of the telegram method to request
      * @param array $arguments
      * @return TelegramResponse

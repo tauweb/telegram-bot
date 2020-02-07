@@ -16,25 +16,23 @@ class BotsManager
 
     /**
      * TelegramManager constructor.
-     *
      * @param array $config
      */
     public function __construct(array $config = [])
     {
         // Getting the default config for Laravel or standalone.
-        if (empty($config) and function_exists('config'))
+        if (empty($config) and function_exists('config')) {
             $config = config('telegrambot');
-        elseif (empty($config))
+        } elseif (empty($config)) {
             $config = include(__DIR__.'/config/telegrambot.php');
+        }
 
         $this->config = $config;
     }
 
     /**
      * Get a bot instance.
-     *
      * @param string $name
-     *
      * @return TelegramBotApi
      */
     public function getBot(string $name = null): TelegramBotApi
@@ -49,9 +47,7 @@ class BotsManager
 
     /**
      * Make the bot instance.
-     *
      * @param string $name
-     *
      * @return TelegramBotApi
      */
     protected function makeBot(string $name): TelegramBotApi
@@ -63,23 +59,30 @@ class BotsManager
         return $telegramBot;
     }
 
-    public function getConfig(string $key = '')
+    public function getConfig(string $key = '' /*, bool $global = false*/)
     {
-        if(!$this->currentBotName)
+        if (!$this->currentBotName) {
             throw new \Exception('You must first create a bot instance BotsManager->getBot()'); // TODO: Написать обработчик исключений
+        }
 
 //        $key = 'name.ts';
-//
 //        $keys = explode('.', $key)
 //        for ($i = 0; $i <= count($keys) ; $i++){
 //            echo
 //        }
 //        die();
 
-        if ($key == 'name')
+        if ($key == 'name') {
             return $this->currentBotName;
+        }
 
+        if (array_key_exists($key ,$this->config)) {
+            return $this->config[$key];
+        }
 
+//        if ($global) {
+//            return $this->config[$key];
+//        }
 
         return $key ? $this->config['bots'][$this->currentBotName][$key] : $this->config['bots'][$this->currentBotName];
     }
