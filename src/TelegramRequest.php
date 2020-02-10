@@ -54,7 +54,7 @@ class TelegramRequest
      */
     public function __construct(
 //        $telegramBotApi
-//        string $accessToken,
+//        string $accessToken,использования
 //        string $method = null,
 //        array $params = []
         // string $file = null

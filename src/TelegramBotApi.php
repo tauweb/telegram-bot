@@ -1,7 +1,6 @@
 <?php
 namespace TelegramBot;
 
-use PHPUnit\Framework\MockObject\Method;
 use TelegramBot\TelegramRequest;
 
 class TelegramBotApi
@@ -28,7 +27,7 @@ class TelegramBotApi
     }
 
     /**
-     * Get instance of the Bots Manager (DI).
+     * Get instance of the Bots Manager (DI).use PHPUnit\Framework\MockObject\Method;
      * @param array $config The bots config
      * @return BotsManager
      */
@@ -47,6 +46,7 @@ class TelegramBotApi
         	->setAccessToken($this->getAccessToken())
 			->setMethod($method)
 			->setParams($params);
+
         if ($this->manager()->getConfig('proxy_enable')) {
             $this->response->setProxy($this->manager()->getConfig('proxy'));
         }
@@ -55,7 +55,10 @@ class TelegramBotApi
         ;
     }
 
-    public function getAccessToken() {return $this->token;}
+    public function getAccessToken()
+    {
+        return $this->token;
+    }
 
     /**
      * The magic method to call undescribed methods in the API (For dev)
